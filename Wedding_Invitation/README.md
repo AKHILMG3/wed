@@ -8,6 +8,15 @@ To use your own files, place optimized images in `public` (for example, `public/
 
 The project currently has no uploaded wedding photos or audio, so the configured remote sample photos remain in place until you replace them. The music control reports when its configured audio file is unavailable.
 
+## Connect Supabase wishes
+
+1. Create a Supabase project.
+2. In the Supabase SQL Editor, run `supabase/schema.sql`. It creates the `wedding_wishes` table, enables row-level security, and adds the table to Realtime.
+3. Copy `.env.example` to `.env.local`, then set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` from the Supabase project's API settings. Restart the Vite dev server after changing environment variables.
+4. Set the same variables in your hosting provider before deploying.
+
+The browser uses only the public anon key. Never put a Supabase `service_role` key in a `VITE_` variable or client code. The included policies allow anonymous visitors to read and submit wishes; add CAPTCHA or server-side rate limiting before sharing the public link to reduce spam. Without the two environment variables, the wish form works as a local preview and does not save or share wishes.
+
 ## Run locally
 
 ```sh

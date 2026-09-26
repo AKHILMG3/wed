@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUpRight, MapPin, Music2, Pause, Share2, Sparkles } from "lucide-react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ArrowDown, ArrowUpRight, Heart, MapPin, Music2, Pause, Send, X } from "lucide-react";
 import { coupleName, wedding } from "./data/wedding";
+import { supabase } from "./lib/supabase";
 
 const countdownLabels = Object.keys(wedding.copy.countdownLabels);
 
@@ -15,96 +16,96 @@ function getCountdown() {
   };
 }
 
-function ScratchCard({ onReveal }) {
-  const canvasRef = useRef(null);
-  const [revealed, setRevealed] = useState(false);
-  const isScratching = useRef(false);
-  const lastCheck = useRef(0);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const bounds = canvas.getBoundingClientRect();
-    const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = bounds.width * ratio;
-    canvas.height = bounds.height * ratio;
-    const context = canvas.getContext("2d", { willReadFrequently: true });
-    context.scale(ratio, ratio);
-    context.fillStyle = "#bd9861";
-    context.fillRect(0, 0, bounds.width, bounds.height);
-    context.strokeStyle = "rgba(255, 246, 225, .22)";
-    context.lineWidth = 1;
-    for (let x = -bounds.height; x < bounds.width; x += 12) {
-      context.beginPath();
-      context.moveTo(x, 0);
-      context.lineTo(x + bounds.height, bounds.height);
-      context.stroke();
-    }
-  }, []);
-
-  const scratch = (event) => {
-    if (!isScratching.current || revealed) return;
-    const canvas = canvasRef.current;
-    const bounds = canvas.getBoundingClientRect();
-    const context = canvas.getContext("2d");
-    context.globalCompositeOperation = "destination-out";
-    context.beginPath();
-    context.arc(event.clientX - bounds.left, event.clientY - bounds.top, 21, 0, Math.PI * 2);
-    context.fill();
-
-    if (Date.now() - lastCheck.current < 180) return;
-    lastCheck.current = Date.now();
-    const pixels = context.getImageData(0, 0, canvas.width, canvas.height).data;
-    let transparent = 0;
-    for (let index = 3; index < pixels.length; index += 4 * 16) {
-      if (pixels[index] === 0) transparent += 1;
-    }
-    if (transparent / (pixels.length / (4 * 16)) > 0.42) {
-      setRevealed(true);
-      onReveal();
-    }
-  };
-
-  return (
-    <div className={`scratch-card ${revealed ? "is-revealed" : ""}`}>
-      <div className="scratch-card__secret" aria-live="polite">
-        <span className="scratch-card__day">{wedding.date.day}</span>
-        <strong>{wedding.date.display}</strong>
-        <span>{wedding.date.time} <i>·</i> {wedding.venue.name}</span>
-      </div>
-      {!revealed && (
-        <canvas
-          aria-label={wedding.copy.scratchHint}
-          className="scratch-card__canvas"
-          ref={canvasRef}
-          onPointerDown={(event) => {
-            isScratching.current = true;
-            event.currentTarget.setPointerCapture(event.pointerId);
-            scratch(event);
-          }}
-          onPointerMove={scratch}
-          onPointerUp={() => { isScratching.current = false; }}
-          onPointerCancel={() => { isScratching.current = false; }}
-        />
-      )}
-      {!revealed && <span className="scratch-card__hint"><Sparkles size={15} />{wedding.copy.scratchHint}</span>}
-      {revealed && <div className="petal-burst" aria-hidden="true">{Array.from({ length: 14 }, (_, index) => <i key={index} style={{ "--petal-index": index }} />)}</div>}
-    </div>
-  );
-}
-
 function App() {
   const [opened, setOpened] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [musicUnavailable, setMusicUnavailable] = useState(false);
   const [countdown, setCountdown] = useState(() => getCountdown());
-  const [dateRevealed, setDateRevealed] = useState(false);
+  const [wishDialogOpen, setWishDialogOpen] = useState(false);
+  const [wishName, setWishName] = useState("");
+  const [wishMessage, setWishMessage] = useState("");
+  const [wishSubmitting, setWishSubmitting] = useState(false);
+  const [wishError, setWishError] = useState("");
+  const [wishes, setWishes] = useState([]);
+  const [wishShowcaseOpen, setWishShowcaseOpen] = useState(false);
+  const [wishIndex, setWishIndex] = useState(0);
+  const [wishCycle, setWishCycle] = useState(0);
   const audioRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const previousScrollRestoration = window.history.scrollRestoration;
+    window.history.scrollRestoration = "manual";
+    window.scrollTo(0, 0);
+    return () => { window.history.scrollRestoration = previousScrollRestoration; };
+  }, []);
+
+  useLayoutEffect(() => {
+    document.documentElement.classList.toggle("cover-lock", !opened);
+    return () => document.documentElement.classList.remove("cover-lock");
+  }, [opened]);
 
   useEffect(() => {
     const timer = setInterval(() => setCountdown(getCountdown()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!supabase) return undefined;
+    let isMounted = true;
+
+    const loadWishes = async () => {
+      const { data, error } = await supabase
+        .from("wedding_wishes")
+        .select("id, name, message, created_at")
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (isMounted && !error && data) {
+        setWishes((currentWishes) => {
+          const merged = [...currentWishes];
+          data.forEach((wish) => {
+            if (!merged.some((currentWish) => currentWish.id === wish.id)) merged.push(wish);
+          });
+          return merged.sort((first, second) => new Date(first.created_at) - new Date(second.created_at)).slice(-100);
+        });
+      }
+    };
+
+    void loadWishes();
+    const channel = supabase
+      .channel("public-wedding-wishes")
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "wedding_wishes" }, ({ new: wish }) => {
+        setWishes((currentWishes) => {
+          if (currentWishes.some((currentWish) => currentWish.id === wish.id)) return currentWishes;
+          return [...currentWishes, wish].sort((first, second) => new Date(first.created_at) - new Date(second.created_at)).slice(-100);
+        });
+        setWishShowcaseOpen(true);
+      })
+      .subscribe();
+
+    return () => {
+      isMounted = false;
+      void supabase.removeChannel(channel);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!wishDialogOpen) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key === "Escape") setWishDialogOpen(false);
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [wishDialogOpen]);
+
+  useEffect(() => {
+    if (wishes.length === 0 || !wishShowcaseOpen) return undefined;
+    const timer = setInterval(() => {
+      setWishIndex((index) => (index + 1) % wishes.length);
+      setWishCycle((cycle) => cycle + 1);
+    }, 6500);
+    return () => clearInterval(timer);
+  }, [wishes.length, wishShowcaseOpen]);
 
   useEffect(() => {
     document.title = wedding.copy.pageTitle.replace("{couple}", coupleName);
@@ -129,7 +130,39 @@ function App() {
 
   const openInvite = () => {
     setOpened(true);
-    window.setTimeout(() => document.getElementById("welcome")?.scrollIntoView({ behavior: "smooth" }), 650);
+  };
+
+  const sendWish = async (event) => {
+    event.preventDefault();
+    const wish = { name: wishName.trim(), message: wishMessage.trim() };
+    if (!wish.name || !wish.message || wishSubmitting) return;
+    setWishSubmitting(true);
+    setWishError("");
+    try {
+      let submittedWish = wish;
+      if (supabase) {
+        const { data, error } = await supabase
+          .from("wedding_wishes")
+          .insert(wish)
+          .select("id, name, message, created_at")
+          .single();
+        if (error) throw error;
+        submittedWish = data;
+      }
+      setWishes((currentWishes) => currentWishes.some((currentWish) => currentWish.id && currentWish.id === submittedWish.id)
+        ? currentWishes
+        : [...currentWishes, submittedWish]);
+      setWishIndex(wishes.length);
+      setWishCycle((cycle) => cycle + 1);
+      setWishShowcaseOpen(true);
+      setWishName("");
+      setWishMessage("");
+      setWishDialogOpen(false);
+    } catch {
+      setWishError(wedding.copy.wishSubmitError);
+    } finally {
+      setWishSubmitting(false);
+    }
   };
 
   const toggleMusic = async () => {
@@ -148,8 +181,6 @@ function App() {
     }
   };
 
-  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(`${wedding.copy.shareText} ${coupleName} · ${wedding.date.display} · ${wedding.venue.name}`)}`;
-
   return (
     <main className="invite-shell" id="top">
       <section className={`cover ${opened ? "is-open" : "is-closed"}`} aria-label={wedding.copy.coverAria}>
@@ -165,7 +196,6 @@ function App() {
           <button className="open-button" onClick={openInvite} type="button"><span>{wedding.copy.openButton}</span><ArrowDown size={15} /></button>
         </div>
         <p className="cover__side-note" aria-hidden="true">{wedding.copy.coverSideNote}</p>
-        <a className="cover__scroll" href="#welcome" aria-label={wedding.copy.scrollLabel}><span>{wedding.copy.scrollLabel}</span><i><ArrowDown size={14} /></i></a>
       </section>
 
       <section className="welcome section reveal" id="welcome">
@@ -176,19 +206,6 @@ function App() {
         <p className="welcome__message">{wedding.message}</p>
         <span className="gold-line" aria-hidden="true" />
         <p className="welcome__family">{wedding.copy.familyNote}</p>
-      </section>
-
-      <section className="date-section section reveal" id="the-date">
-        <div className="date-section__copy">
-          <p className="eyebrow">{wedding.copy.dateEyebrow}</p>
-          <h2>{wedding.copy.dateHeading}</h2>
-          <p>{wedding.copy.scratchDescription}</p>
-        </div>
-        <ScratchCard onReveal={() => setDateRevealed(true)} />
-        <div className={`countdown ${dateRevealed ? "countdown--celebrate" : ""}`} aria-label={wedding.copy.countdownAria}>
-          <p className="eyebrow">{wedding.copy.countdownHeading}</p>
-          <div className="countdown__grid">{countdownLabels.map((key) => <div className="countdown__unit" key={key}><strong>{countdown[key]}</strong><span>{wedding.copy.countdownLabels[key]}</span></div>)}</div>
-        </div>
       </section>
 
       <section className="story section reveal" id="our-story">
@@ -208,6 +225,10 @@ function App() {
         <h2>{wedding.venue.name}</h2>
         <p className="venue__address">{wedding.venue.address}</p>
         <p className="venue__note">{wedding.copy.venueNote}</p>
+        <div className="venue__countdown" aria-label={wedding.copy.countdownAria}>
+          <p className="eyebrow">{wedding.copy.countdownHeading}</p>
+          <div className="venue__countdown-grid">{countdownLabels.map((key) => <div className="venue__countdown-unit" key={key}><strong>{countdown[key]}</strong><span>{wedding.copy.countdownLabels[key]}</span></div>)}</div>
+        </div>
         <div className="venue__details"><span>{wedding.date.display}</span><i>✳</i><span>{wedding.date.time}</span></div>
         <a className="map-button" href={wedding.venue.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={15} />{wedding.copy.mapButton}<ArrowUpRight size={14} /></a>
       </section>
@@ -216,7 +237,7 @@ function App() {
         <p className="eyebrow">{wedding.copy.closingEyebrow}</p>
         <h2>{wedding.copy.closingHeading}</h2>
         <p>{wedding.copy.closingText}</p>
-        <a className="share-button" href={whatsappUrl} target="_blank" rel="noreferrer"><Share2 size={16} />{wedding.copy.shareButton}<ArrowUpRight size={14} /></a>
+        <button className="share-button" onClick={() => setWishDialogOpen(true)} type="button"><Heart size={16} />{wedding.copy.wishButton}<ArrowUpRight size={14} /></button>
         <p className="closing__names">{coupleName}</p>
       </section>
 
@@ -228,6 +249,37 @@ function App() {
         {playing && <i className="music-button__equalizer" aria-hidden="true"><b /><b /><b /></i>}
       </button>
       <audio ref={audioRef} src={wedding.media.music} preload="none" loop onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={() => { setPlaying(false); setMusicUnavailable(true); }} />
+
+      {wishDialogOpen && (
+        <div className="wish-dialog-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setWishDialogOpen(false); }}>
+          <section className="wish-dialog" role="dialog" aria-modal="true" aria-labelledby="wish-dialog-title">
+            <button className="wish-dialog__close" type="button" onClick={() => setWishDialogOpen(false)} aria-label={wedding.copy.closeWishForm}><X size={19} /></button>
+            <form onSubmit={sendWish}>
+              <label className="wish-dialog__message-label" htmlFor="wish-message">{wedding.copy.wishMessageLabel}</label>
+              <textarea id="wish-message" autoFocus maxLength={240} placeholder={wedding.copy.wishMessagePlaceholder} value={wishMessage} onChange={(event) => setWishMessage(event.target.value)} required />
+              <h2 id="wish-dialog-title">{wedding.copy.wishDialogTitle}</h2>
+              <label className="wish-dialog__name-label" htmlFor="wish-name">{wedding.copy.wishNameLabel}</label>
+              <input id="wish-name" autoComplete="name" maxLength={50} placeholder={wedding.copy.wishNamePlaceholder} value={wishName} onChange={(event) => setWishName(event.target.value)} required />
+              <div className="wish-dialog__actions">
+                <button className="wish-dialog__cancel" type="button" onClick={() => setWishDialogOpen(false)}>{wedding.copy.cancelWish}</button>
+                <button className="wish-dialog__submit" type="submit" disabled={wishSubmitting}><Send size={15} />{wishSubmitting ? wedding.copy.sendingWish : wedding.copy.submitWish}<Heart size={14} /></button>
+              </div>
+              {wishError && <p className="wish-dialog__error" role="alert">{wishError}</p>}
+            </form>
+          </section>
+        </div>
+      )}
+
+      {wishes.length > 0 && wishShowcaseOpen && !wishDialogOpen && (
+        <section className="wish-showcase" aria-label={wedding.copy.wishesAria} aria-live="polite">
+          <button className="wish-showcase__close" type="button" onClick={() => setWishShowcaseOpen(false)} aria-label={wedding.copy.closeWishes}><X size={19} /></button>
+          <div className="wish-showcase__card" key={`${wishIndex}-${wishCycle}`}>
+            <p>{wishes[wishIndex].message}</p>
+            <span>{wedding.copy.wishFrom} {wishes[wishIndex].name}</span>
+          </div>
+          <button className="wish-showcase__send" type="button" onClick={() => setWishDialogOpen(true)}><Heart size={15} />{wedding.copy.wishButton}</button>
+        </section>
+      )}
     </main>
   );
 }
