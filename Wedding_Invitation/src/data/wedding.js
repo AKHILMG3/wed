@@ -10,10 +10,10 @@ export const wedding = {
     time: "12:00 PM",
   },
   venue: {
-    name: "E M S Municipal Town Hall",
+    name: "E M S Mini Town Hall",
     address: "Perumbavoor, Kerala",
     mapsUrl:
-      "https://www.google.com/maps/search/?api=1&query=E+M+S+Municipal+Town+Hall+Perumbavoor",
+      "https://www.google.com/maps/search/?api=1&query=E+M+S+Mini+Town+Hall%2C+Perumbavoor%2C+Kerala",
   },
   message:
     "With full hearts, we invite you to be part of the day we begin our forever. Your presence, blessings, and love will make our celebration complete.",

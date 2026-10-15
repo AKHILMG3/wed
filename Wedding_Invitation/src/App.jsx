@@ -4,6 +4,12 @@ import { coupleName, wedding } from "./data/wedding";
 import { supabase } from "./lib/supabase";
 
 const countdownLabels = Object.keys(wedding.copy.countdownLabels);
+const wishPastels = ["#F5EAC6", "#DCE8D5", "#DCE9EF", "#F1DDDF", "#E7E0F1"];
+
+function getNextWishPastel(currentIndex) {
+  const options = wishPastels.map((_, index) => index).filter((index) => index !== currentIndex);
+  return options[Math.floor(Math.random() * options.length)];
+}
 
 function getWishSubmitErrorMessage(error) {
   if (error instanceof TypeError) {
@@ -41,6 +47,7 @@ function App() {
   const [wishError, setWishError] = useState("");
   const [wishes, setWishes] = useState([]);
   const [wishIndex, setWishIndex] = useState(0);
+  const [wishPastelIndex, setWishPastelIndex] = useState(() => Math.floor(Math.random() * wishPastels.length));
   const audioRef = useRef(null);
 
   useLayoutEffect(() => {
@@ -122,7 +129,8 @@ function App() {
     if (wishes.length < 2) return undefined;
     const timer = setInterval(() => {
       setWishIndex((index) => (index + 1) % wishes.length);
-    }, 6500);
+      setWishPastelIndex((index) => getNextWishPastel(index));
+    }, 3500);
     return () => clearInterval(timer);
   }, [wishes.length]);
 
@@ -176,6 +184,7 @@ function App() {
         ? currentWishes
         : [...currentWishes, data]);
       setWishIndex(wishes.length);
+      setWishPastelIndex((index) => getNextWishPastel(index));
       setWishName("");
       setWishMessage("");
       setWishDialogOpen(false);
@@ -267,18 +276,24 @@ function App() {
               <button
                 className="closing__wish-nav"
                 type="button"
-                onClick={() => setWishIndex((index) => (index - 1 + wishes.length) % wishes.length)}
+                onClick={() => {
+                  setWishIndex((index) => (index - 1 + wishes.length) % wishes.length);
+                  setWishPastelIndex((index) => getNextWishPastel(index));
+                }}
                 aria-label="Show previous wish"
                 disabled={wishes.length < 2}
               ><ArrowLeft size={17} /></button>
-              <blockquote className="closing__wish-card" key={wishIndex}>
+              <blockquote className="closing__wish-card" key={wishIndex} style={{ backgroundColor: wishPastels[wishPastelIndex], color: "#263d32" }}>
                 <p>{wishes[wishIndex % wishes.length].message}</p>
                 <cite>{wedding.copy.wishFrom} {wishes[wishIndex % wishes.length].name}</cite>
               </blockquote>
               <button
                 className="closing__wish-nav"
                 type="button"
-                onClick={() => setWishIndex((index) => (index + 1) % wishes.length)}
+                onClick={() => {
+                  setWishIndex((index) => (index + 1) % wishes.length);
+                  setWishPastelIndex((index) => getNextWishPastel(index));
+                }}
                 aria-label="Show next wish"
                 disabled={wishes.length < 2}
               ><ArrowRight size={17} /></button>
