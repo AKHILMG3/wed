@@ -1,9 +1,22 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ArrowDown, ArrowUpRight, Heart, MapPin, Music2, Pause, Send, X } from "lucide-react";
+import { ArrowDown, ArrowLeft, ArrowRight, ArrowUpRight, Heart, MapPin, Music2, Pause, Send, X } from "lucide-react";
 import { coupleName, wedding } from "./data/wedding";
 import { supabase } from "./lib/supabase";
 
 const countdownLabels = Object.keys(wedding.copy.countdownLabels);
+
+function getWishSubmitErrorMessage(error) {
+  if (error instanceof TypeError) {
+    return "Could not connect to Supabase. Check that VITE_SUPABASE_URL is the correct, active project URL.";
+  }
+  if (error?.code === "PGRST205" || error?.code === "42P01") {
+    return "The wedding_wishes table is missing. Run supabase/schema.sql in the Supabase SQL Editor.";
+  }
+  if (error?.code === "42501") {
+    return "Supabase denied this wish. Check the wedding_wishes insert policy and permissions.";
+  }
+  return wedding.copy.wishSubmitError;
+}
 
 function getCountdown() {
   const difference = new Date(wedding.date.iso).getTime() - Date.now();
@@ -27,9 +40,7 @@ function App() {
   const [wishSubmitting, setWishSubmitting] = useState(false);
   const [wishError, setWishError] = useState("");
   const [wishes, setWishes] = useState([]);
-  const [wishShowcaseOpen, setWishShowcaseOpen] = useState(false);
   const [wishIndex, setWishIndex] = useState(0);
-  const [wishCycle, setWishCycle] = useState(0);
   const audioRef = useRef(null);
 
   useLayoutEffect(() => {
@@ -54,20 +65,24 @@ function App() {
     let isMounted = true;
 
     const loadWishes = async () => {
-      const { data, error } = await supabase
-        .from("wedding_wishes")
-        .select("id, name, message, created_at")
-        .order("created_at", { ascending: false })
-        .limit(100);
+      try {
+        const { data, error } = await supabase
+          .from("wedding_wishes")
+          .select("id, name, message, created_at")
+          .order("created_at", { ascending: false })
+          .limit(100);
 
-      if (isMounted && !error && data) {
-        setWishes((currentWishes) => {
-          const merged = [...currentWishes];
-          data.forEach((wish) => {
-            if (!merged.some((currentWish) => currentWish.id === wish.id)) merged.push(wish);
+        if (isMounted && !error && data) {
+          setWishes((currentWishes) => {
+            const merged = [...currentWishes];
+            data.forEach((wish) => {
+              if (!merged.some((currentWish) => currentWish.id === wish.id)) merged.push(wish);
+            });
+            return merged.sort((first, second) => new Date(first.created_at) - new Date(second.created_at)).slice(-100);
           });
-          return merged.sort((first, second) => new Date(first.created_at) - new Date(second.created_at)).slice(-100);
-        });
+        }
+      } catch (error) {
+        console.warn("Wedding wishes are unavailable right now.", error);
       }
     };
 
@@ -79,12 +94,17 @@ function App() {
           if (currentWishes.some((currentWish) => currentWish.id === wish.id)) return currentWishes;
           return [...currentWishes, wish].sort((first, second) => new Date(first.created_at) - new Date(second.created_at)).slice(-100);
         });
-        setWishShowcaseOpen(true);
-      })
-      .subscribe();
+      });
+
+    const subscription = channel.subscribe((status) => {
+      if (status === "CHANNEL_ERROR" || status === "TIMED_OUT") {
+        console.warn("Realtime wishlist subscription unavailable.");
+      }
+    });
 
     return () => {
       isMounted = false;
+      void subscription.unsubscribe();
       void supabase.removeChannel(channel);
     };
   }, []);
@@ -99,13 +119,12 @@ function App() {
   }, [wishDialogOpen]);
 
   useEffect(() => {
-    if (wishes.length === 0 || !wishShowcaseOpen) return undefined;
+    if (wishes.length < 2) return undefined;
     const timer = setInterval(() => {
       setWishIndex((index) => (index + 1) % wishes.length);
-      setWishCycle((cycle) => cycle + 1);
     }, 6500);
     return () => clearInterval(timer);
-  }, [wishes.length, wishShowcaseOpen]);
+  }, [wishes.length]);
 
   useEffect(() => {
     document.title = wedding.copy.pageTitle.replace("{couple}", coupleName);
@@ -136,30 +155,33 @@ function App() {
     event.preventDefault();
     const wish = { name: wishName.trim(), message: wishMessage.trim() };
     if (!wish.name || !wish.message || wishSubmitting) return;
+
+    if (!supabase) {
+      setWishError("Wishes are currently unavailable because Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in the deployment environment, and make sure VITE_ENABLE_SUPABASE is not set to false.");
+      return;
+    }
+
     setWishSubmitting(true);
     setWishError("");
     try {
-      let submittedWish = wish;
-      if (supabase) {
-        const { data, error } = await supabase
-          .from("wedding_wishes")
-          .insert(wish)
-          .select("id, name, message, created_at")
-          .single();
-        if (error) throw error;
-        submittedWish = data;
-      }
-      setWishes((currentWishes) => currentWishes.some((currentWish) => currentWish.id && currentWish.id === submittedWish.id)
+      const { data, error } = await supabase
+        .from("wedding_wishes")
+        .insert(wish)
+        .select("id, name, message, created_at")
+        .single();
+
+      if (error) throw error;
+
+      setWishes((currentWishes) => currentWishes.some((currentWish) => currentWish.id && currentWish.id === data.id)
         ? currentWishes
-        : [...currentWishes, submittedWish]);
+        : [...currentWishes, data]);
       setWishIndex(wishes.length);
-      setWishCycle((cycle) => cycle + 1);
-      setWishShowcaseOpen(true);
       setWishName("");
       setWishMessage("");
       setWishDialogOpen(false);
-    } catch {
-      setWishError(wedding.copy.wishSubmitError);
+    } catch (error) {
+      console.error("Failed to submit wedding wish.", error);
+      setWishError(getWishSubmitErrorMessage(error));
     } finally {
       setWishSubmitting(false);
     }
@@ -209,7 +231,7 @@ function App() {
       </section>
 
       <section className="story section reveal" id="our-story">
-        <div className="story__image-wrap"><img src={wedding.media.photos[0]} alt={wedding.media.photoDescriptions[0]} loading="lazy" /><span>{wedding.copy.storyImageNote}</span></div>
+        <div className="story__image-wrap"><img src={wedding.media.storyImage} alt={wedding.media.storyImageDescription} loading="lazy" /><span>{wedding.copy.storyImageNote}</span></div>
         <div className="story__copy"><p className="eyebrow">{wedding.copy.storyEyebrow}</p><h2>{wedding.copy.storyHeading}</h2><p>{wedding.copy.storyText}</p><span className="gold-line" aria-hidden="true" /><p className="story__signature">{coupleName}</p></div>
         <figure className="story__portrait"><img src={wedding.media.photos[1]} alt={wedding.media.photoDescriptions[1]} loading="lazy" /><figcaption>{wedding.copy.storyCaption}</figcaption></figure>
       </section>
@@ -238,6 +260,32 @@ function App() {
         <h2>{wedding.copy.closingHeading}</h2>
         <p>{wedding.copy.closingText}</p>
         <button className="share-button" onClick={() => setWishDialogOpen(true)} type="button"><Heart size={16} />{wedding.copy.wishButton}<ArrowUpRight size={14} /></button>
+        {wishes.length > 0 && (
+          <div className="closing__wishes" aria-label={wedding.copy.wishesAria}>
+            <p className="eyebrow">{wedding.copy.wishesAria}</p>
+            <div className="closing__wish-slider" aria-live="polite">
+              <button
+                className="closing__wish-nav"
+                type="button"
+                onClick={() => setWishIndex((index) => (index - 1 + wishes.length) % wishes.length)}
+                aria-label="Show previous wish"
+                disabled={wishes.length < 2}
+              ><ArrowLeft size={17} /></button>
+              <blockquote className="closing__wish-card" key={wishIndex}>
+                <p>{wishes[wishIndex % wishes.length].message}</p>
+                <cite>{wedding.copy.wishFrom} {wishes[wishIndex % wishes.length].name}</cite>
+              </blockquote>
+              <button
+                className="closing__wish-nav"
+                type="button"
+                onClick={() => setWishIndex((index) => (index + 1) % wishes.length)}
+                aria-label="Show next wish"
+                disabled={wishes.length < 2}
+              ><ArrowRight size={17} /></button>
+            </div>
+            <span className="closing__wish-count">{(wishIndex % wishes.length) + 1} / {wishes.length}</span>
+          </div>
+        )}
         <p className="closing__names">{coupleName}</p>
       </section>
 
@@ -270,16 +318,6 @@ function App() {
         </div>
       )}
 
-      {wishes.length > 0 && wishShowcaseOpen && !wishDialogOpen && (
-        <section className="wish-showcase" aria-label={wedding.copy.wishesAria} aria-live="polite">
-          <button className="wish-showcase__close" type="button" onClick={() => setWishShowcaseOpen(false)} aria-label={wedding.copy.closeWishes}><X size={19} /></button>
-          <div className="wish-showcase__card" key={`${wishIndex}-${wishCycle}`}>
-            <p>{wishes[wishIndex].message}</p>
-            <span>{wedding.copy.wishFrom} {wishes[wishIndex].name}</span>
-          </div>
-          <button className="wish-showcase__send" type="button" onClick={() => setWishDialogOpen(true)}><Heart size={15} />{wedding.copy.wishButton}</button>
-        </section>
-      )}
     </main>
   );
 }

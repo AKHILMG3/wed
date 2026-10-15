@@ -68,27 +68,29 @@ export const wedding = {
     musicUnavailable: "Add a music file in wedding.js",
   },
   media: {
+    storyImage: "/photos/our-story.jpg",
+    storyImageDescription: "Anjali and Arun together",
     cover:
       "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=90",
     music: "/wedding-music.mp3",
     photos: [
-      "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1200&q=85",
-      "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=1200&q=85",
-      "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=1200&q=85",
-      "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=85",
-      "https://images.unsplash.com/photo-1606800052052-a08af7148866?auto=format&fit=crop&w=1200&q=85",
-      "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1200&q=85",
+      "/photos/moment-01.jpg",
+      "/photos/moment-02.jpg",
+      "/photos/moment-03.jpg",
+      "/photos/moment-04.jpg",
+      "/photos/moment-05.jpg",
+      "/photos/moment-06.jpg",
     ],
     coverDescription: "An intimate wedding celebration in golden evening light",
     photoDescriptions: [
-      "An intimate wedding celebration",
-      "A quiet moment on a wedding day",
-      "A couple celebrating their wedding",
-      "A wedding table set for an evening together",
-      "A detail from a couple's wedding day",
-      "A warm celebration surrounded by family",
+      "The couple sharing a smile together in the garden",
+      "The couple holding hands beneath a leafy doorway",
+      "The couple sharing a quiet embrace among the greenery",
+      "A close-up of the couple holding hands",
+      "The couple standing together in the garden",
+      "A close-up of the couple sharing an embrace",
     ],
   },
 };
 
-export const coupleName = `${wedding.couple.bride} & ${wedding.couple.groom}`;
+export const coupleName = `${wedding.couple.groom} & ${wedding.couple.bride}`;
