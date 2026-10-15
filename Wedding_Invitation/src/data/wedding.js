@@ -65,14 +65,14 @@ export const wedding = {
     pauseMusic: "Pause wedding music",
     musicOn: "Music on",
     musicOff: "Our song",
-    musicUnavailable: "Add a music file in wedding.js",
+    musicUnavailable: "Wedding music is unavailable",
   },
   media: {
     storyImage: "/photos/our-story.jpg",
     storyImageDescription: "Anjali and Arun together",
     cover:
       "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=90",
-    music: "/wedding-music.mp3",
+    music: "/music/wedding-music.mp3",
     photos: [
       "/photos/moment-01.jpg",
       "/photos/moment-02.jpg",

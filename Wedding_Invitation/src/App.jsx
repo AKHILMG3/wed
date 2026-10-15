@@ -50,6 +50,10 @@ function App() {
   const [wishPastelIndex, setWishPastelIndex] = useState(() => Math.floor(Math.random() * wishPastels.length));
   const audioRef = useRef(null);
 
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = 0.2;
+  }, []);
+
   useLayoutEffect(() => {
     const previousScrollRestoration = window.history.scrollRestoration;
     window.history.scrollRestoration = "manual";
@@ -197,18 +201,18 @@ function App() {
   };
 
   const toggleMusic = async () => {
-    if (!audioRef.current || !wedding.media.music || musicUnavailable) return;
-    if (playing) {
-      audioRef.current.pause();
-      setPlaying(false);
+    const audio = audioRef.current;
+    if (!audio || !wedding.media.music || musicUnavailable) return;
+    if (!audio.paused) {
+      audio.pause();
       return;
     }
     try {
-      await audioRef.current.play();
-      setPlaying(true);
-    } catch {
-      setPlaying(false);
-      setMusicUnavailable(true);
+      await audio.play();
+    } catch (error) {
+      if (error.name !== "AbortError") {
+        console.warn("Wedding music could not be played.", error);
+      }
     }
   };
 
@@ -306,12 +310,11 @@ function App() {
 
       <footer className="footer"><a href="#top" className="footer__monogram" aria-label={wedding.copy.backToTop}>{wedding.couple.bride[0]}<i>&</i>{wedding.couple.groom[0]}</a><p>{wedding.copy.footerText.replace("{couple}", coupleName)}</p><a className="footer__top" href="#top" aria-label={wedding.copy.backToTop}><ArrowUpRight size={16} /></a></footer>
 
-      <button className={`music-button ${playing ? "is-playing" : ""}`} onClick={toggleMusic} type="button" disabled={musicUnavailable} aria-label={musicUnavailable ? wedding.copy.musicUnavailable : playing ? wedding.copy.pauseMusic : wedding.copy.playMusic} title={musicUnavailable ? wedding.copy.musicUnavailable : playing ? wedding.copy.pauseMusic : wedding.copy.playMusic}>
+      <button className={`music-button ${playing ? "is-playing" : ""}`} onClick={toggleMusic} type="button" disabled={musicUnavailable} aria-label={musicUnavailable ? wedding.copy.musicUnavailable : playing ? wedding.copy.pauseMusic : wedding.copy.playMusic} aria-pressed={playing} title={musicUnavailable ? wedding.copy.musicUnavailable : playing ? wedding.copy.pauseMusic : wedding.copy.playMusic}>
         {playing ? <Pause size={17} /> : <Music2 size={18} />}
-        <span>{musicUnavailable ? wedding.copy.musicUnavailable : playing ? wedding.copy.musicOn : wedding.copy.musicOff}</span>
         {playing && <i className="music-button__equalizer" aria-hidden="true"><b /><b /><b /></i>}
       </button>
-      <audio ref={audioRef} src={wedding.media.music} preload="none" loop onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={() => { setPlaying(false); setMusicUnavailable(true); }} />
+      <audio ref={audioRef} src={wedding.media.music || undefined} preload="metadata" loop onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={() => { setPlaying(false); setMusicUnavailable(true); }} />
 
       {wishDialogOpen && (
         <div className="wish-dialog-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setWishDialogOpen(false); }}>

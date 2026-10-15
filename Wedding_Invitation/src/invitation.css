@@ -148,9 +148,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--rose); outline-
 .footer p { margin: 0; color: rgba(245,242,233,.68); font-family: var(--serif); font-size: .9rem; font-style: italic; }
 .footer__top { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(226,201,147,.45); color: #f0dfbb; transform: rotate(-45deg); }
 .footer__top svg { transform: rotate(45deg); }
-.music-button { position: fixed; z-index: 10; right: 1.1rem; bottom: .5rem; display: flex; min-width: 48px; height: 48px; align-items: center; justify-content: center; gap: .55rem; padding: 0 .85rem; border: 1px solid rgba(226,201,147,.62); border-radius: 28px; color: #f9f1df; background: rgba(40,59,53,.92); box-shadow: 0 5px 20px rgba(25,37,31,.2); backdrop-filter: blur(8px); cursor: pointer; }
-.music-button span { font-size: .6rem; letter-spacing: .08em; }
+.music-button { position: fixed; z-index: 10; right: 1.1rem; bottom: .5rem; display: flex; width: 48px; height: 48px; align-items: center; justify-content: center; padding: 0; border: 1px solid rgba(226,201,147,.62); border-radius: 50%; color: #f9f1df; background: rgba(40,59,53,.92); box-shadow: 0 5px 20px rgba(25,37,31,.2); backdrop-filter: blur(8px); cursor: pointer; }
 .music-button.is-playing { color: #f6d89d; }
+.music-button:disabled { opacity: .55; cursor: not-allowed; }
 .music-button__equalizer { display: flex; height: 13px; align-items: center; gap: 2px; }
 .music-button__equalizer b { width: 2px; height: 5px; background: currentColor; animation: equalize .65s ease-in-out infinite alternate; }
 .music-button__equalizer b:nth-child(2) { height: 11px; animation-delay: .2s; }
@@ -270,7 +270,6 @@ body { font-size: 16px; }
 .closing__wish-card { border-radius: 3px; }
 .wish-dialog { border-radius: 4px; }
 .music-button { right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); border-color: rgba(226,211,174,.7); background: rgba(38,61,50,.96); }
-.music-button span { font-size: .875rem; }
 
 @media (max-width: 700px) {
   .section { padding: 4.5rem 1.25rem; }

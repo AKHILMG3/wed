@@ -6,7 +6,7 @@ Update `src/data/wedding.js` to change the couple names, date and time, venue, m
 
 The Our Story section uses `public/photos/our-story.jpg`; replace that file and update `wedding.media.storyImageDescription` in `src/data/wedding.js` if needed. The six photos in `public/photos/moment-01.jpg` through `moment-06.jpg` appear in the gallery in order; update `wedding.media.photos` and `wedding.media.photoDescriptions` to change them. To use your own cover, place an optimized image in `public` (for example, `public/photos/cover.jpg`) and set the matching path in `wedding.media.cover` (`/photos/cover.jpg`). Add an audio file such as `public/wedding-music.mp3` and set `wedding.media.music` to `/wedding-music.mp3`.
 
-The music control reports when its configured audio file is unavailable.
+The floating music control starts playback only when selected, loops while visitors browse the page, and plays at a low volume. If the configured file is unavailable, the control is disabled. Use only a royalty-free or properly licensed instrumental track in `public/wedding-music.mp3`.
 
 ## Connect Supabase wishes
 
