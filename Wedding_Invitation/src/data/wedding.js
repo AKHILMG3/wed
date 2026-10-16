@@ -63,9 +63,11 @@ export const wedding = {
     backToTop: "Back to the invitation cover",
     playMusic: "Play wedding music",
     pauseMusic: "Pause wedding music",
-    musicOn: "Music on",
+    musicOn: "Turn wedding music on",
     musicOff: "Our song",
     musicUnavailable: "Wedding music is unavailable",
+    musicTapToPlay: "Tap the music button to start playback",
+    musicPlaybackError: "Wedding music could not be played. Tap to try again.",
   },
   media: {
     storyImage: "/photos/our-story.jpg",
@@ -75,7 +77,7 @@ export const wedding = {
     music: "/music/wedding-music.mp3",
     photos: [
       "/photos/moment-01.jpg",
-      "/photos/moment-02.jpg",
+      "/photos/moment-02.png",
       "/photos/moment-03.jpg",
       "/photos/moment-04.jpg",
       "/photos/moment-05.jpg",
@@ -84,7 +86,7 @@ export const wedding = {
     coverDescription: "An intimate wedding celebration in golden evening light",
     photoDescriptions: [
       "The couple sharing a smile together in the garden",
-      "The couple holding hands beneath a leafy doorway",
+      "The couple sharing a loving embrace in the garden",
       "The couple sharing a quiet embrace among the greenery",
       "A close-up of the couple holding hands",
       "The couple standing together in the garden",

@@ -38,6 +38,9 @@ function getCountdown() {
 function App() {
   const [opened, setOpened] = useState(false);
   const [playing, setPlaying] = useState(false);
+  const [musicMuted, setMusicMuted] = useState(false);
+  const [musicNeedsTap, setMusicNeedsTap] = useState(false);
+  const [musicPlaybackError, setMusicPlaybackError] = useState(false);
   const [musicUnavailable, setMusicUnavailable] = useState(false);
   const [countdown, setCountdown] = useState(() => getCountdown());
   const [wishDialogOpen, setWishDialogOpen] = useState(false);
@@ -49,9 +52,55 @@ function App() {
   const [wishIndex, setWishIndex] = useState(0);
   const [wishPastelIndex, setWishPastelIndex] = useState(() => Math.floor(Math.random() * wishPastels.length));
   const audioRef = useRef(null);
+  const musicMutedRef = useRef(false);
+  const startMusicRef = useRef(null);
 
   useEffect(() => {
-    if (audioRef.current) audioRef.current.volume = 0.2;
+    const audio = audioRef.current;
+    if (!audio) return undefined;
+    let playRequested = false;
+    let isMounted = true;
+
+    audio.volume = 0.2;
+    audio.muted = musicMutedRef.current;
+
+    const startMusic = async () => {
+      if (!isMounted || audio.error || !audio.paused || musicMutedRef.current || playRequested) return;
+      playRequested = true;
+      try {
+        await audio.play();
+        if (isMounted) {
+          setMusicNeedsTap(false);
+          setMusicPlaybackError(false);
+        }
+      } catch (error) {
+        if (!isMounted || error?.name === "AbortError") return;
+        if (error?.name === "NotAllowedError") {
+          setMusicNeedsTap(true);
+        } else {
+          console.error("Wedding music could not be played.", error);
+          setMusicPlaybackError(true);
+        }
+      } finally {
+        playRequested = false;
+      }
+    };
+    startMusicRef.current = startMusic;
+
+    const startAfterInteraction = (event) => {
+      if (event.target instanceof Element && event.target.closest(".music-button")) return;
+      void startMusic();
+    };
+    window.addEventListener("pointerdown", startAfterInteraction);
+    window.addEventListener("keydown", startAfterInteraction);
+    void startMusic();
+
+    return () => {
+      isMounted = false;
+      startMusicRef.current = null;
+      window.removeEventListener("pointerdown", startAfterInteraction);
+      window.removeEventListener("keydown", startAfterInteraction);
+    };
   }, []);
 
   useLayoutEffect(() => {
@@ -203,17 +252,17 @@ function App() {
   const toggleMusic = async () => {
     const audio = audioRef.current;
     if (!audio || !wedding.media.music || musicUnavailable) return;
-    if (!audio.paused) {
-      audio.pause();
+    if (!audio.paused && !audio.muted) {
+      audio.muted = true;
+      musicMutedRef.current = true;
+      setMusicMuted(true);
       return;
     }
-    try {
-      await audio.play();
-    } catch (error) {
-      if (error.name !== "AbortError") {
-        console.warn("Wedding music could not be played.", error);
-      }
-    }
+    audio.muted = false;
+    musicMutedRef.current = false;
+    setMusicMuted(false);
+    setMusicNeedsTap(false);
+    await startMusicRef.current?.();
   };
 
   return (
@@ -310,11 +359,12 @@ function App() {
 
       <footer className="footer"><a href="#top" className="footer__monogram" aria-label={wedding.copy.backToTop}>{wedding.couple.bride[0]}<i>&</i>{wedding.couple.groom[0]}</a><p>{wedding.copy.footerText.replace("{couple}", coupleName)}</p><a className="footer__top" href="#top" aria-label={wedding.copy.backToTop}><ArrowUpRight size={16} /></a></footer>
 
-      <button className={`music-button ${playing ? "is-playing" : ""}`} onClick={toggleMusic} type="button" disabled={musicUnavailable} aria-label={musicUnavailable ? wedding.copy.musicUnavailable : playing ? wedding.copy.pauseMusic : wedding.copy.playMusic} aria-pressed={playing} title={musicUnavailable ? wedding.copy.musicUnavailable : playing ? wedding.copy.pauseMusic : wedding.copy.playMusic}>
-        {playing ? <Pause size={17} /> : <Music2 size={18} />}
-        {playing && <i className="music-button__equalizer" aria-hidden="true"><b /><b /><b /></i>}
+      <button className={`music-button ${playing && !musicMuted ? "is-playing" : ""}`} onClick={toggleMusic} type="button" disabled={musicUnavailable} aria-label={musicUnavailable ? wedding.copy.musicUnavailable : playing && !musicMuted ? wedding.copy.pauseMusic : playing && musicMuted ? wedding.copy.musicOn : wedding.copy.playMusic} aria-pressed={playing && !musicMuted} title={musicUnavailable ? wedding.copy.musicUnavailable : playing && !musicMuted ? wedding.copy.pauseMusic : playing && musicMuted ? wedding.copy.musicOn : wedding.copy.playMusic}>
+        {playing && !musicMuted ? <Pause size={17} /> : <Music2 size={18} />}
+        {playing && !musicMuted && <i className="music-button__equalizer" aria-hidden="true"><b /><b /><b /></i>}
       </button>
-      <audio ref={audioRef} src={wedding.media.music || undefined} preload="metadata" loop onPlay={() => setPlaying(true)} onPause={() => setPlaying(false)} onError={() => { setPlaying(false); setMusicUnavailable(true); }} />
+      {(musicNeedsTap || musicPlaybackError || musicUnavailable) && <span className="music-button__notice" role="status">{musicUnavailable ? wedding.copy.musicUnavailable : musicNeedsTap ? wedding.copy.musicTapToPlay : wedding.copy.musicPlaybackError}</span>}
+      <audio ref={audioRef} src={wedding.media.music || undefined} preload="metadata" loop onPlay={() => { setPlaying(true); setMusicNeedsTap(false); setMusicPlaybackError(false); }} onPause={() => setPlaying(false)} onVolumeChange={(event) => { musicMutedRef.current = event.currentTarget.muted; setMusicMuted(event.currentTarget.muted); }} onError={() => { setPlaying(false); setMusicUnavailable(true); }} />
 
       {wishDialogOpen && (
         <div className="wish-dialog-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setWishDialogOpen(false); }}>
