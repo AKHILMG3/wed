@@ -7,6 +7,7 @@ const countdownLabels = Object.keys(wedding.copy.countdownLabels);
 const wishPastels = ["#F5EAC6", "#DCE8D5", "#DCE9EF", "#F1DDDF", "#E7E0F1"];
 
 function getNextWishPastel(currentIndex) {
+  if (wishPastels.length < 2) return 0;
   const options = wishPastels.map((_, index) => index).filter((index) => index !== currentIndex);
   return options[Math.floor(Math.random() * options.length)];
 }
@@ -180,6 +181,7 @@ function App() {
 
   useEffect(() => {
     if (wishes.length < 2) return undefined;
+
     const timer = setInterval(() => {
       setWishIndex((index) => (index + 1) % wishes.length);
       setWishPastelIndex((index) => getNextWishPastel(index));
@@ -233,10 +235,11 @@ function App() {
 
       if (error) throw error;
 
-      setWishes((currentWishes) => currentWishes.some((currentWish) => currentWish.id && currentWish.id === data.id)
-        ? currentWishes
-        : [...currentWishes, data]);
-      setWishIndex(wishes.length);
+      setWishes((currentWishes) => {
+        if (currentWishes.some((currentWish) => currentWish.id && currentWish.id === data.id)) return currentWishes;
+        return [...currentWishes, data];
+      });
+      setWishIndex((currentIndex) => (currentIndex + 1) % Math.max(wishes.length, 1));
       setWishPastelIndex((index) => getNextWishPastel(index));
       setWishName("");
       setWishMessage("");
@@ -337,8 +340,8 @@ function App() {
                 disabled={wishes.length < 2}
               ><ArrowLeft size={17} /></button>
               <blockquote className="closing__wish-card" key={wishIndex} style={{ backgroundColor: wishPastels[wishPastelIndex], color: "#263d32" }}>
-                <p>{wishes[wishIndex % wishes.length].message}</p>
-                <cite>{wedding.copy.wishFrom} {wishes[wishIndex % wishes.length].name}</cite>
+                <p>{wishes[Math.abs(wishIndex) % wishes.length].message}</p>
+                <cite>{wedding.copy.wishFrom} {wishes[Math.abs(wishIndex) % wishes.length].name}</cite>
               </blockquote>
               <button
                 className="closing__wish-nav"
@@ -351,7 +354,7 @@ function App() {
                 disabled={wishes.length < 2}
               ><ArrowRight size={17} /></button>
             </div>
-            <span className="closing__wish-count">{(wishIndex % wishes.length) + 1} / {wishes.length}</span>
+            <span className="closing__wish-count">{(Math.abs(wishIndex) % wishes.length) + 1} / {wishes.length}</span>
           </div>
         )}
         <p className="closing__names">{coupleName}</p>

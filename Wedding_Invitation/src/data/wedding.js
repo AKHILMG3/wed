@@ -72,22 +72,21 @@ export const wedding = {
   media: {
     storyImage: "/photos/our-story.jpg",
     storyImageDescription: "Anjali and Arun together",
-    cover:
-      "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&w=1600&q=90",
+    cover: "/photos/cover.png",
     music: "/music/wedding-music.mp3",
     photos: [
       "/photos/moment-01.jpg",
       "/photos/moment-02.png",
-      "/photos/moment-03.jpg",
+      "/photos/moment-03.png",
       "/photos/moment-04.jpg",
       "/photos/moment-05.jpg",
       "/photos/moment-06.jpg",
     ],
-    coverDescription: "An intimate wedding celebration in golden evening light",
+    coverDescription: "A close-up of the couple holding hands, dressed in sage green and ivory",
     photoDescriptions: [
       "The couple sharing a smile together in the garden",
       "The couple sharing a loving embrace in the garden",
-      "The couple sharing a quiet embrace among the greenery",
+      "The couple holding hands and showing their wedding rings",
       "A close-up of the couple holding hands",
       "The couple standing together in the garden",
       "A close-up of the couple sharing an embrace",
