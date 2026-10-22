@@ -25,6 +25,26 @@ function getWishSubmitErrorMessage(error) {
   return wedding.copy.wishSubmitError;
 }
 
+function CoverDivider({ variant }) {
+  return (
+    <div className={`cover__ornament cover__ornament--${variant}`} aria-hidden="true">
+      <span className="cover__ornament-line" />
+      <svg viewBox="0 0 48 24" fill="none">
+        <g stroke="currentColor" strokeWidth=".8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M24 22C24 15 24 8 24 2" />
+          <path d="M24 17C19 17 16 14 13 10C18 10 22 12 24 16" />
+          <path d="M24 17C29 17 32 14 35 10C30 10 26 12 24 16" />
+          <path d="M24 11C20 11 17.5 8 16 5C20 5 23 7.5 24 10" />
+          <path d="M24 11C28 11 30.5 8 32 5C28 5 25 7.5 24 10" />
+          <path d="M24 6C21 5.5 19 3.5 18.5 1.5C21.5 1.5 23 3.2 24 5" />
+          <path d="M24 6C27 5.5 29 3.5 29.5 1.5C26.5 1.5 25 3.2 24 5" />
+        </g>
+      </svg>
+      <span className="cover__ornament-line" />
+    </div>
+  );
+}
+
 function getCountdown() {
   const difference = new Date(wedding.date.iso).getTime() - Date.now();
   if (difference <= 0) return { days: "00", hours: "00", minutes: "00", seconds: "00" };
@@ -260,32 +280,20 @@ function App() {
         <div className="cover__rule" aria-hidden="true" />
         <div className="cover__content">
           <p className="eyebrow cover__eyebrow">{wedding.copy.coverEyebrow}</p>
-          <div className="cover__ornament cover__ornament--flower" aria-hidden="true">
-            <span className="cover__ornament-line" />
-            <svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" strokeWidth=".8"><ellipse cx="12" cy="5.2" rx="2.1" ry="3.2" /><ellipse cx="12" cy="5.2" rx="2.1" ry="3.2" transform="rotate(60 12 12)" /><ellipse cx="12" cy="5.2" rx="2.1" ry="3.2" transform="rotate(120 12 12)" /><circle cx="12" cy="12" r="1.25" /></g></svg>
-            <span className="cover__ornament-line" />
-          </div>
+          <CoverDivider variant="flower" />
           <p className="cover__invitation">joyfully invite you to celebrate their wedding</p>
           <h1 className="cover__names shine">Arun &amp; Anjali</h1>
           <span className="cover__ampersand" aria-hidden="true">&</span>
-          <div className="cover__ornament cover__ornament--sprig" aria-hidden="true">
-            <span className="cover__ornament-line" />
-            <svg viewBox="0 0 42 20"><g fill="none" stroke="currentColor" strokeWidth=".85" strokeLinecap="round" strokeLinejoin="round"><path d="M21 17.5C21 12.5 20.5 7.8 18.5 3"/><path d="M20 14C16.5 13.7 13 12.3 10.5 9.5c3.7-.5 6.8.5 9.5 3"/><path d="M20.5 10C24 9.4 27 7.8 29 5c-3.4-.2-6.5.9-8.5 3.7"/><path d="M20.5 7C18 6.2 16 4.9 14.8 2.8c2.8 0 4.9 1.2 6 3.2"/><path d="M21 14C24.2 14 27.3 15.2 29.8 17.4c-3.3.4-6.3-.6-8.8-2.8"/></g></svg>
-            <span className="cover__ornament-line" />
-          </div>
+          <CoverDivider variant="sprig" />
           <p className="cover__date"><span>SUNDAY &#183; 12:00 PM</span><span>25 OCTOBER 2026</span></p>
           <p className="cover__motto">JOIN US FOR A CELEBRATION OF LOVE, FAMILY &amp; TOGETHERNESS</p>
-          <div className="cover__ornament cover__ornament--sprig cover__ornament--bottom" aria-hidden="true">
-            <span className="cover__ornament-line" />
-            <svg viewBox="0 0 42 20"><g fill="none" stroke="currentColor" strokeWidth=".85" strokeLinecap="round" strokeLinejoin="round"><path d="M21 17.5C21 12.5 20.5 7.8 18.5 3"/><path d="M20 14C16.5 13.7 13 12.3 10.5 9.5c3.7-.5 6.8.5 9.5 3"/><path d="M20.5 10C24 9.4 27 7.8 29 5c-3.4-.2-6.5.9-8.5 3.7"/><path d="M20.5 7C18 6.2 16 4.9 14.8 2.8c2.8 0 4.9 1.2 6 3.2"/><path d="M21 14C24.2 14 27.3 15.2 29.8 17.4c-3.3.4-6.3-.6-8.8-2.8"/></g></svg>
-            <span className="cover__ornament-line" />
-          </div>
+          <CoverDivider variant="bottom" />
           <button className="open-button" onClick={openInvite} type="button"><span>{wedding.copy.openButton}</span><ArrowDown size={15} /></button>
         </div>
       </section>
 
       <section className="welcome section reveal" id="welcome">
-        <div className="section-flower" aria-hidden="true">âœ³</div>
+        <div className="section-flower" aria-hidden="true">✳</div>
         <p className="eyebrow">{wedding.copy.welcomeEyebrow}</p>
         <h2>{wedding.copy.welcomeHeading}</h2>
         <p className="welcome__names">{coupleName}</p>

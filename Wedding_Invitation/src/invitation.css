@@ -61,7 +61,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--sage-deep); out
 .open-button:hover svg { transform: translateY(3px); }
 .cover__side-note { position: absolute; top: calc(100svh - 14rem); right: 3rem; bottom: auto; margin: 0; color: rgba(255,250,241,.68); font-size: .56rem; letter-spacing: .15em; text-transform: uppercase; writing-mode: vertical-rl; }
 .welcome { position: relative; display: grid; min-height: 100svh; align-content: center; justify-items: center; padding-top: 8rem; padding-bottom: 8rem; text-align: center; background-color: var(--paper); background-image: radial-gradient(rgba(180,139,83,.16) .7px, transparent .7px); background-size: 18px 18px; }
-.section-flower { margin-bottom: 1.15rem; color: var(--sage-deep); font-size: 1.25rem; }
+.section-flower { margin-bottom: 1.15rem; color: #a87370; font-size: 1.8rem; line-height: 1; }
 .welcome h2, .story h2, .gallery-heading h2, .venue h2, .closing h2 { margin: 1rem 0; font-family: var(--serif); font-size: 3.5rem; font-weight: 400; line-height: .98; }
 .welcome__names { margin: .8rem 0 1.5rem; color: var(--sage-deep); font-family: var(--serif); font-size: 1.65rem; font-style: normal; font-weight: 400; letter-spacing: normal; }
 .welcome__message { max-width: 530px; margin: 0 auto; color: var(--muted); font-family: var(--serif); font-size: 1.4rem; line-height: 1.5; }
@@ -334,14 +334,11 @@ body { font-size: 16px; }
 .cover__names { max-width: 100%; margin: .6rem auto 0; color: #E2D0A5; background: linear-gradient(105deg, #E2D0A5 0%, #E9D6A2 46%, #E2D0A5 100%); background-clip: text; -webkit-background-clip: text; font-family: "Edwardian Script ITC", "Pinyon Script", cursive; font-size: clamp(3.05rem, 11.2vw, 7.25rem); font-weight: 400; letter-spacing: -.025em; line-height: 1.08; white-space: nowrap; -webkit-text-fill-color: transparent; }
 .cover .shine { color: #E2D0A5; background: linear-gradient(105deg, #E2D0A5 0%, #E9D6A2 46%, #E2D0A5 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 .cover__ampersand { display: none; }
-.cover__ornament { display: flex; align-items: center; justify-content: center; gap: .38rem; color: #E2D0A5; line-height: 1; }
-.cover__ornament-line { display: block; width: 27px; height: 1px; flex: 0 0 27px; background: rgba(226, 208, 165, .78); }
-.cover__ornament svg { display: block; overflow: visible; }
+.cover__ornament { display: flex; width: min(176px, 46vw); align-items: center; justify-content: center; gap: .45rem; color: #E2D0A5; line-height: 1; }
+.cover__ornament-line { display: block; height: 1px; flex: 1 1 auto; background: rgba(226, 208, 165, .72); }
+.cover__ornament svg { display: block; width: 30px; height: 18px; flex: 0 0 30px; overflow: visible; }
 .cover__ornament--flower { margin: .45rem auto .7rem; }
-.cover__ornament--flower svg { width: 18px; height: 18px; }
-.cover__ornament--sprig { gap: .32rem; margin: .3rem auto .1rem; }
-.cover__ornament--sprig .cover__ornament-line { width: 35px; flex-basis: 35px; }
-.cover__ornament--sprig svg { width: 33px; height: 16px; }
+.cover__ornament--sprig { margin: .3rem auto .1rem; }
 .cover__ornament--bottom { margin: .35rem auto 0; }
 .cover__date { display: flex; flex-direction: column; gap: .28rem; margin: 1rem 0 0; color: #E8DFC7; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(1.28rem, 2.4vw, 1.8rem); font-weight: 400; letter-spacing: .17em; line-height: 1.2; text-transform: uppercase; }
 .cover__date span { margin: 0; color: #E8DFC7; font-family: "Cormorant Garamond", Georgia, serif; font-size: .72em; font-weight: 400; letter-spacing: .2em; }
