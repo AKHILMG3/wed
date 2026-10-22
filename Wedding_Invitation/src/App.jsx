@@ -295,7 +295,10 @@ function App() {
           <p className="eyebrow cover__eyebrow">{wedding.copy.coverEyebrow}</p>
           <CoverDivider variant="flower" />
           <p className="cover__invitation">{wedding.copy.coverIntro}</p>
-          <h1 className="cover__names shine">Arun &amp; Anjali</h1>
+          <h1 className="cover__names">
+            <span className="cover__names-label">Arun &amp; Anjali</span>
+            <img className="cover__names-image" src="/photos/arun-anjali-edwardian.png" alt="" aria-hidden="true" />
+          </h1>
           <span className="cover__ampersand" aria-hidden="true">&</span>
           <CoverDivider variant="sprig" />
           <p className="cover__date"><span>SUNDAY &#183; 12:00 PM</span><span>25 OCTOBER 2026</span></p>
