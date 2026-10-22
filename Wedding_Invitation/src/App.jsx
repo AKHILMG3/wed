@@ -40,7 +40,6 @@ function App() {
   const [opened, setOpened] = useState(false);
   const [playing, setPlaying] = useState(false);
   const [musicMuted, setMusicMuted] = useState(false);
-  const [musicNeedsTap, setMusicNeedsTap] = useState(false);
   const [musicPlaybackError, setMusicPlaybackError] = useState(false);
   const [musicUnavailable, setMusicUnavailable] = useState(false);
   const [countdown, setCountdown] = useState(() => getCountdown());
@@ -71,36 +70,21 @@ function App() {
       try {
         await audio.play();
         if (isMounted) {
-          setMusicNeedsTap(false);
           setMusicPlaybackError(false);
         }
       } catch (error) {
         if (!isMounted || error?.name === "AbortError") return;
-        if (error?.name === "NotAllowedError") {
-          setMusicNeedsTap(true);
-        } else {
-          console.error("Wedding music could not be played.", error);
-          setMusicPlaybackError(true);
-        }
+        console.error("Wedding music could not be played.", error);
+        setMusicPlaybackError(true);
       } finally {
         playRequested = false;
       }
     };
     startMusicRef.current = startMusic;
 
-    const startAfterInteraction = (event) => {
-      if (event.target instanceof Element && event.target.closest(".music-button")) return;
-      void startMusic();
-    };
-    window.addEventListener("pointerdown", startAfterInteraction);
-    window.addEventListener("keydown", startAfterInteraction);
-    void startMusic();
-
     return () => {
       isMounted = false;
       startMusicRef.current = null;
-      window.removeEventListener("pointerdown", startAfterInteraction);
-      window.removeEventListener("keydown", startAfterInteraction);
     };
   }, []);
 
@@ -212,6 +196,7 @@ function App() {
 
   const openInvite = () => {
     setOpened(true);
+    void startMusicRef.current?.();
   };
 
   const sendWish = async (event) => {
@@ -264,7 +249,6 @@ function App() {
     audio.muted = false;
     musicMutedRef.current = false;
     setMusicMuted(false);
-    setMusicNeedsTap(false);
     await startMusicRef.current?.();
   };
 
@@ -273,20 +257,35 @@ function App() {
       <section className={`cover ${opened ? "is-open" : "is-closed"}`} aria-label={wedding.copy.coverAria}>
         <img className="cover__image" src={wedding.media.cover} alt={wedding.media.coverDescription} fetchPriority="high" />
         <div className="cover__veil" />
-        <div className="cover__rule" aria-hidden="true"><span>✳</span></div>
+        <div className="cover__rule" aria-hidden="true" />
         <div className="cover__content">
           <p className="eyebrow cover__eyebrow">{wedding.copy.coverEyebrow}</p>
-          <p className="cover__invitation">{wedding.copy.coverIntro}</p>
-          <h1 className="cover__names shine">{coupleName}</h1>
+          <div className="cover__ornament cover__ornament--flower" aria-hidden="true">
+            <span className="cover__ornament-line" />
+            <svg viewBox="0 0 24 24"><g fill="none" stroke="currentColor" strokeWidth=".8"><ellipse cx="12" cy="5.2" rx="2.1" ry="3.2" /><ellipse cx="12" cy="5.2" rx="2.1" ry="3.2" transform="rotate(60 12 12)" /><ellipse cx="12" cy="5.2" rx="2.1" ry="3.2" transform="rotate(120 12 12)" /><circle cx="12" cy="12" r="1.25" /></g></svg>
+            <span className="cover__ornament-line" />
+          </div>
+          <p className="cover__invitation">joyfully invite you to celebrate their wedding</p>
+          <h1 className="cover__names shine">Arun &amp; Anjali</h1>
           <span className="cover__ampersand" aria-hidden="true">&</span>
-          <p className="cover__date">{wedding.date.display}<span>{wedding.date.day} · {wedding.date.time}</span></p>
+          <div className="cover__ornament cover__ornament--sprig" aria-hidden="true">
+            <span className="cover__ornament-line" />
+            <svg viewBox="0 0 42 20"><g fill="none" stroke="currentColor" strokeWidth=".85" strokeLinecap="round" strokeLinejoin="round"><path d="M21 17.5C21 12.5 20.5 7.8 18.5 3"/><path d="M20 14C16.5 13.7 13 12.3 10.5 9.5c3.7-.5 6.8.5 9.5 3"/><path d="M20.5 10C24 9.4 27 7.8 29 5c-3.4-.2-6.5.9-8.5 3.7"/><path d="M20.5 7C18 6.2 16 4.9 14.8 2.8c2.8 0 4.9 1.2 6 3.2"/><path d="M21 14C24.2 14 27.3 15.2 29.8 17.4c-3.3.4-6.3-.6-8.8-2.8"/></g></svg>
+            <span className="cover__ornament-line" />
+          </div>
+          <p className="cover__date"><span>SUNDAY &#183; 12:00 PM</span><span>25 OCTOBER 2026</span></p>
+          <p className="cover__motto">JOIN US FOR A CELEBRATION OF LOVE, FAMILY &amp; TOGETHERNESS</p>
+          <div className="cover__ornament cover__ornament--sprig cover__ornament--bottom" aria-hidden="true">
+            <span className="cover__ornament-line" />
+            <svg viewBox="0 0 42 20"><g fill="none" stroke="currentColor" strokeWidth=".85" strokeLinecap="round" strokeLinejoin="round"><path d="M21 17.5C21 12.5 20.5 7.8 18.5 3"/><path d="M20 14C16.5 13.7 13 12.3 10.5 9.5c3.7-.5 6.8.5 9.5 3"/><path d="M20.5 10C24 9.4 27 7.8 29 5c-3.4-.2-6.5.9-8.5 3.7"/><path d="M20.5 7C18 6.2 16 4.9 14.8 2.8c2.8 0 4.9 1.2 6 3.2"/><path d="M21 14C24.2 14 27.3 15.2 29.8 17.4c-3.3.4-6.3-.6-8.8-2.8"/></g></svg>
+            <span className="cover__ornament-line" />
+          </div>
           <button className="open-button" onClick={openInvite} type="button"><span>{wedding.copy.openButton}</span><ArrowDown size={15} /></button>
         </div>
-        <p className="cover__side-note" aria-hidden="true">{wedding.copy.coverSideNote}</p>
       </section>
 
       <section className="welcome section reveal" id="welcome">
-        <div className="section-flower" aria-hidden="true">✳</div>
+        <div className="section-flower" aria-hidden="true">âœ³</div>
         <p className="eyebrow">{wedding.copy.welcomeEyebrow}</p>
         <h2>{wedding.copy.welcomeHeading}</h2>
         <p className="welcome__names">{coupleName}</p>
@@ -316,7 +315,7 @@ function App() {
           <p className="eyebrow">{wedding.copy.countdownHeading}</p>
           <div className="venue__countdown-grid">{countdownLabels.map((key) => <div className="venue__countdown-unit" key={key}><strong>{countdown[key]}</strong><span>{wedding.copy.countdownLabels[key]}</span></div>)}</div>
         </div>
-        <div className="venue__details"><span>{wedding.date.display}</span><i>✳</i><span>{wedding.date.time}</span></div>
+        <div className="venue__details"><span>{wedding.date.display}</span><i>âœ³</i><span>{wedding.date.time}</span></div>
         <a className="map-button" href={wedding.venue.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={15} />{wedding.copy.mapButton}<ArrowUpRight size={14} /></a>
       </section>
 
@@ -366,8 +365,8 @@ function App() {
         {playing && !musicMuted ? <Pause size={17} /> : <Music2 size={18} />}
         {playing && !musicMuted && <i className="music-button__equalizer" aria-hidden="true"><b /><b /><b /></i>}
       </button>
-      {(musicNeedsTap || musicPlaybackError || musicUnavailable) && <span className="music-button__notice" role="status">{musicUnavailable ? wedding.copy.musicUnavailable : musicNeedsTap ? wedding.copy.musicTapToPlay : wedding.copy.musicPlaybackError}</span>}
-      <audio ref={audioRef} src={wedding.media.music || undefined} preload="metadata" loop onPlay={() => { setPlaying(true); setMusicNeedsTap(false); setMusicPlaybackError(false); }} onPause={() => setPlaying(false)} onVolumeChange={(event) => { musicMutedRef.current = event.currentTarget.muted; setMusicMuted(event.currentTarget.muted); }} onError={() => { setPlaying(false); setMusicUnavailable(true); }} />
+      {(musicPlaybackError || musicUnavailable) && <span className="music-button__notice" role="status">{musicUnavailable ? wedding.copy.musicUnavailable : wedding.copy.musicPlaybackError}</span>}
+      <audio ref={audioRef} src={wedding.media.music || undefined} preload="metadata" loop onPlay={() => { setPlaying(true); setMusicPlaybackError(false); }} onPause={() => setPlaying(false)} onVolumeChange={(event) => { musicMutedRef.current = event.currentTarget.muted; setMusicMuted(event.currentTarget.muted); }} onError={() => { setPlaying(false); setMusicUnavailable(true); }} />
 
       {wishDialogOpen && (
         <div className="wish-dialog-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) setWishDialogOpen(false); }}>

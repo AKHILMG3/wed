@@ -1,4 +1,4 @@
- @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Dancing+Script:wght@500;600;700&family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Dancing+Script:wght@500;600;700&family=DM+Sans:wght@400;500;600&family=Playfair+Display:wght@400;500;600&family=Pinyon+Script&display=swap');
 @import "tailwindcss";
 
 :root {
@@ -50,9 +50,9 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--sage-deep); out
 .is-open .cover__content { opacity: 0; transform: translateY(-12px) scale(.98); pointer-events: none; }
 .cover__eyebrow { color: var(--gold-light); }
 .cover__invitation { margin: 1.25rem 0 0; color: rgba(250,247,240,.88); font-family: var(--serif); font-size: 1.35rem; font-style: italic; }
-.cover__names { margin: .55rem 0 0; font-family: var(--serif); font-size: 5rem; font-weight: 400; line-height: .9; }
-.shine { color: #f0d79e; background: linear-gradient(105deg, #c29a58 5%, #fff0c4 22%, #ddc183 38%, #fff0c4 54%, #bd9251 72%, #f5e3b5 88%); background-size: 230% auto; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: golden-shine 8s linear infinite; }
-.cover__ampersand { display: block; margin: -.15rem 0; color: var(--gold-light); font-family: var(--serif); font-size: 1.7rem; font-style: italic; }
+.cover__names { margin: .55rem 0 0; color: #FDE6C; font-family: "Edwardian Script ITC", "Segoe Script", cursive; font-size: 5rem; font-weight: 400; letter-spacing: normal; line-height: .9; }
+.shine { color: #FDE6C; background: none; background-clip: border-box; -webkit-background-clip: border-box; -webkit-text-fill-color: #FDE6C; animation: none; }
+.cover__ampersand { display: block; margin: -.15rem 0; color: #FDE6C; font-family: "Edwardian Script ITC", "Segoe Script", cursive; font-size: 1.7rem; font-style: normal; font-weight: 400; letter-spacing: normal; }
 .cover__date { margin: 1rem 0 0; color: #f2e4c9; font-family: var(--serif); font-size: 1.45rem; }
 .cover__date span { display: block; margin-top: .4rem; color: rgba(255,250,241,.78); font-family: "DM Sans", sans-serif; font-size: .65rem; letter-spacing: .17em; text-transform: uppercase; }
 .open-button { display: inline-flex; align-items: center; justify-content: center; gap: .75rem; min-height: 48px; margin-top: 2.2rem; padding: 0 1.25rem; border: 1px solid rgba(237,216,173,.8); color: #fff9ed; background: rgba(34,47,40,.24); cursor: pointer; font-size: .65rem; letter-spacing: .16em; text-transform: uppercase; transition: background .25s ease, color .25s ease; }
@@ -63,7 +63,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--sage-deep); out
 .welcome { position: relative; display: grid; min-height: 100svh; align-content: center; justify-items: center; padding-top: 8rem; padding-bottom: 8rem; text-align: center; background-color: var(--paper); background-image: radial-gradient(rgba(180,139,83,.16) .7px, transparent .7px); background-size: 18px 18px; }
 .section-flower { margin-bottom: 1.15rem; color: var(--sage-deep); font-size: 1.25rem; }
 .welcome h2, .story h2, .gallery-heading h2, .venue h2, .closing h2 { margin: 1rem 0; font-family: var(--serif); font-size: 3.5rem; font-weight: 400; line-height: .98; }
-.welcome__names { margin: .8rem 0 1.5rem; color: var(--sage-deep); font-family: var(--serif); font-size: 1.65rem; font-style: italic; }
+.welcome__names { margin: .8rem 0 1.5rem; color: var(--sage-deep); font-family: var(--serif); font-size: 1.65rem; font-style: normal; font-weight: 400; letter-spacing: normal; }
 .welcome__message { max-width: 530px; margin: 0 auto; color: var(--muted); font-family: var(--serif); font-size: 1.4rem; line-height: 1.5; }
 .gold-line { display: block; width: 46px; height: 1px; margin: 1.8rem auto; background: var(--gold); }
 .welcome__family { margin: 0; color: var(--muted); font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; }
@@ -325,4 +325,34 @@ body { font-size: 16px; }
 
 .cover__image {
   filter: saturate(.9) sepia(.035) hue-rotate(8deg) brightness(.86) contrast(1.08);
+}
+
+/* Cover typography tuned to the reference invitation. */
+.cover__content { width: min(94%, 900px); }
+.cover__eyebrow { color: #E2D0A5; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(.8rem, 1.25vw, 1rem); font-weight: 400; letter-spacing: .2em; }
+.cover__invitation { margin-top: 1.2rem; color: #E8DFC7; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(1.05rem, 2.15vw, 1.5rem); font-style: italic; font-weight: 400; letter-spacing: .035em; line-height: 1.25; }
+.cover__names { max-width: 100%; margin: .6rem auto 0; color: #E2D0A5; background: linear-gradient(105deg, #E2D0A5 0%, #E9D6A2 46%, #E2D0A5 100%); background-clip: text; -webkit-background-clip: text; font-family: "Edwardian Script ITC", "Pinyon Script", cursive; font-size: clamp(3.05rem, 11.2vw, 7.25rem); font-weight: 400; letter-spacing: -.025em; line-height: 1.08; white-space: nowrap; -webkit-text-fill-color: transparent; }
+.cover .shine { color: #E2D0A5; background: linear-gradient(105deg, #E2D0A5 0%, #E9D6A2 46%, #E2D0A5 100%); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.cover__ampersand { display: none; }
+.cover__ornament { display: flex; align-items: center; justify-content: center; gap: .38rem; color: #E2D0A5; line-height: 1; }
+.cover__ornament-line { display: block; width: 27px; height: 1px; flex: 0 0 27px; background: rgba(226, 208, 165, .78); }
+.cover__ornament svg { display: block; overflow: visible; }
+.cover__ornament--flower { margin: .45rem auto .7rem; }
+.cover__ornament--flower svg { width: 18px; height: 18px; }
+.cover__ornament--sprig { gap: .32rem; margin: .3rem auto .1rem; }
+.cover__ornament--sprig .cover__ornament-line { width: 35px; flex-basis: 35px; }
+.cover__ornament--sprig svg { width: 33px; height: 16px; }
+.cover__ornament--bottom { margin: .35rem auto 0; }
+.cover__date { display: flex; flex-direction: column; gap: .28rem; margin: 1rem 0 0; color: #E8DFC7; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(1.28rem, 2.4vw, 1.8rem); font-weight: 400; letter-spacing: .17em; line-height: 1.2; text-transform: uppercase; }
+.cover__date span { margin: 0; color: #E8DFC7; font-family: "Cormorant Garamond", Georgia, serif; font-size: .72em; font-weight: 400; letter-spacing: .2em; }
+.cover__date span + span { font-size: 1em; letter-spacing: .16em; }
+.cover__motto { max-width: 100%; margin: .45rem auto 0; color: #E8DFC7; font-family: "Cormorant Garamond", Georgia, serif; font-size: clamp(.55rem, .9vw, .68rem); font-weight: 400; letter-spacing: .09em; line-height: 1.4; text-align: center; text-wrap: balance; }
+@media (max-width: 700px) {
+  .cover__names { font-size: clamp(2.85rem, 12.2vw, 5rem); }
+  .cover__invitation { font-size: clamp(1.02rem, 4.5vw, 1.3rem); }
+  .cover__date { font-size: clamp(1.15rem, 4.8vw, 1.4rem); }
+}
+@media (max-width: 360px) {
+  .cover__names { font-size: 10.5vw; letter-spacing: -.04em; }
+  .cover__content { width: 96%; padding-right: .25rem; padding-left: .25rem; }
 }
