@@ -386,7 +386,7 @@ function App() {
         {playing && !musicMuted ? <Pause size={17} /> : <Music2 size={18} />}
         {playing && !musicMuted && <i className="music-button__equalizer" aria-hidden="true"><b /><b /><b /></i>}
       </button>
-      {(musicPlaybackError || musicUnavailable || !playing) && <span className="music-button__notice" role="status">{musicUnavailable ? wedding.copy.musicUnavailable : musicPlaybackError ? wedding.copy.musicPlaybackError : wedding.copy.musicTapToPlay}</span>}
+      {(musicPlaybackError || musicUnavailable) && <span className="music-button__notice" role="status">{musicUnavailable ? wedding.copy.musicUnavailable : wedding.copy.musicPlaybackError}</span>}
       <audio ref={audioRef} src={wedding.media.music || undefined} preload="metadata" loop onPlay={() => { setPlaying(true); setMusicPlaybackError(false); }} onPause={() => setPlaying(false)} onVolumeChange={(event) => { musicMutedRef.current = event.currentTarget.muted; setMusicMuted(event.currentTarget.muted); }} onError={() => { setPlaying(false); setMusicUnavailable(true); }} />
 
       {wishDialogOpen && (
