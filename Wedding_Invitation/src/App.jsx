@@ -26,19 +26,32 @@ function getWishSubmitErrorMessage(error) {
 }
 
 function CoverDivider({ variant }) {
+  const isFlower = variant === "flower";
   return (
     <div className={`cover__ornament cover__ornament--${variant}`} aria-hidden="true">
       <span className="cover__ornament-line" />
-      <svg viewBox="0 0 48 24" fill="none">
-        <g stroke="currentColor" strokeWidth=".8" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M24 22C24 15 24 8 24 2" />
-          <path d="M24 17C19 17 16 14 13 10C18 10 22 12 24 16" />
-          <path d="M24 17C29 17 32 14 35 10C30 10 26 12 24 16" />
-          <path d="M24 11C20 11 17.5 8 16 5C20 5 23 7.5 24 10" />
-          <path d="M24 11C28 11 30.5 8 32 5C28 5 25 7.5 24 10" />
-          <path d="M24 6C21 5.5 19 3.5 18.5 1.5C21.5 1.5 23 3.2 24 5" />
-          <path d="M24 6C27 5.5 29 3.5 29.5 1.5C26.5 1.5 25 3.2 24 5" />
-        </g>
+      <svg viewBox={isFlower ? "0 0 24 24" : "0 0 48 24"} fill="none">
+        {isFlower ? (
+          <g stroke="currentColor" strokeWidth=".7">
+            <ellipse cx="12" cy="6" rx="1.5" ry="2.5" />
+            <ellipse cx="12" cy="6" rx="1.5" ry="2.5" transform="rotate(60 12 12)" />
+            <ellipse cx="12" cy="6" rx="1.5" ry="2.5" transform="rotate(120 12 12)" />
+            <ellipse cx="12" cy="6" rx="1.5" ry="2.5" transform="rotate(180 12 12)" />
+            <ellipse cx="12" cy="6" rx="1.5" ry="2.5" transform="rotate(240 12 12)" />
+            <ellipse cx="12" cy="6" rx="1.5" ry="2.5" transform="rotate(300 12 12)" />
+            <circle cx="12" cy="12" r=".8" />
+          </g>
+        ) : (
+          <g stroke="currentColor" strokeWidth=".75" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M24 22C24 15 24 8 24 2" />
+            <path d="M24 18C19 18 15 15 12 11C17 11 21 13 24 17" />
+            <path d="M24 18C29 18 33 15 36 11C31 11 27 13 24 17" />
+            <path d="M24 12C20 12 17 9 15 6C19 6 22 8 24 11" />
+            <path d="M24 12C28 12 31 9 33 6C29 6 26 8 24 11" />
+            <path d="M24 7C21 6 19 4 18.5 2C21 2.5 23 4 24 6" />
+            <path d="M24 7C27 6 29 4 29.5 2C27 2.5 25 4 24 6" />
+          </g>
+        )}
       </svg>
       <span className="cover__ornament-line" />
     </div>
@@ -281,7 +294,7 @@ function App() {
         <div className="cover__content">
           <p className="eyebrow cover__eyebrow">{wedding.copy.coverEyebrow}</p>
           <CoverDivider variant="flower" />
-          <p className="cover__invitation">joyfully invite you to celebrate their wedding</p>
+          <p className="cover__invitation">{wedding.copy.coverIntro}</p>
           <h1 className="cover__names shine">Arun &amp; Anjali</h1>
           <span className="cover__ampersand" aria-hidden="true">&</span>
           <CoverDivider variant="sprig" />
@@ -373,7 +386,7 @@ function App() {
         {playing && !musicMuted ? <Pause size={17} /> : <Music2 size={18} />}
         {playing && !musicMuted && <i className="music-button__equalizer" aria-hidden="true"><b /><b /><b /></i>}
       </button>
-      {(musicPlaybackError || musicUnavailable) && <span className="music-button__notice" role="status">{musicUnavailable ? wedding.copy.musicUnavailable : wedding.copy.musicPlaybackError}</span>}
+      {(musicPlaybackError || musicUnavailable || !playing) && <span className="music-button__notice" role="status">{musicUnavailable ? wedding.copy.musicUnavailable : musicPlaybackError ? wedding.copy.musicPlaybackError : wedding.copy.musicTapToPlay}</span>}
       <audio ref={audioRef} src={wedding.media.music || undefined} preload="metadata" loop onPlay={() => { setPlaying(true); setMusicPlaybackError(false); }} onPause={() => setPlaying(false)} onVolumeChange={(event) => { musicMutedRef.current = event.currentTarget.muted; setMusicMuted(event.currentTarget.muted); }} onError={() => { setPlaying(false); setMusicUnavailable(true); }} />
 
       {wishDialogOpen && (
