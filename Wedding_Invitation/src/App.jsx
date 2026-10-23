@@ -339,7 +339,7 @@ function App() {
           <p className="eyebrow">{wedding.copy.countdownHeading}</p>
           <div className="venue__countdown-grid">{countdownLabels.map((key) => <div className="venue__countdown-unit" key={key}><strong>{countdown[key]}</strong><span>{wedding.copy.countdownLabels[key]}</span></div>)}</div>
         </div>
-        <div className="venue__details"><span>{wedding.date.display}</span><i>âœ³</i><span>{wedding.date.time}</span></div>
+        <div className="venue__details"><span>{wedding.date.display}</span><svg className="venue__details-star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1v22M1 12h22M4.22 4.22l15.56 15.56M19.78 4.22 4.22 19.78" /></svg><span>{wedding.date.time}</span></div>
         <a className="map-button" href={wedding.venue.mapsUrl} target="_blank" rel="noreferrer"><MapPin size={15} />{wedding.copy.mapButton}<ArrowUpRight size={14} /></a>
       </section>
 

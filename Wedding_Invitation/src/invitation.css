@@ -110,7 +110,7 @@ button:focus-visible, a:focus-visible { outline: 2px solid var(--sage-deep); out
 .venue__countdown-unit strong { display: block; color: var(--ink); font-family: var(--serif); font-size: 2.45rem; font-weight: 400; font-variant-numeric: tabular-nums; line-height: 1; }
 .venue__countdown-unit span { display: block; margin-top: .45rem; color: var(--muted); font-size: .52rem; letter-spacing: .14em; text-transform: uppercase; }
 .venue__details { display: flex; min-height: 48px; align-items: center; justify-content: center; gap: 1rem; margin: 1.25rem auto 1.8rem; padding: .65rem 1rem; border-top: 1px solid rgba(180,139,83,.2); border-bottom: 1px solid rgba(180,139,83,.2); color: var(--ink); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; }
-.venue__details i { color: var(--gold); font-size: .8rem; font-style: normal; }
+.venue__details-star { width: .9em; height: .9em; flex: 0 0 .9em; fill: none; stroke: var(--gold); stroke-width: .9; }
 .map-button, .share-button { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: .7rem; padding: 0 1rem; border: 1px solid var(--gold); color: var(--ink); background: transparent; font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; transition: color .2s ease, background .2s ease; }
 .map-button:hover, .share-button:hover { color: var(--paper); background: var(--ink); }
 
